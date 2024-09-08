@@ -1,79 +1,110 @@
 #include QMK_KEYBOARD_H
 
+enum {
+    TD_BRC = 0,
+    TD_CBR,
+    TD_TBR,
+    TD_PRN,
+    TD_ER,
+    TD_SH,
+    TD_YO
+};
+
+void td_brc(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        SEND_STRING(SS_TAP(X_RALT));
+        SEND_STRING("0091");
+        return;
+    }
+    if (state->count >= 1) {
+        SEND_STRING(SS_TAP(X_RALT));
+        SEND_STRING("0093");
+        return;
+    }
+}
+
+void td_cbr(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        SEND_STRING(SS_TAP(X_RALT));
+        SEND_STRING("0123");
+        return;
+    }
+    if (state->count >= 1) {
+        SEND_STRING(SS_TAP(X_RALT));
+        SEND_STRING("0125");
+        return;
+    }
+}
+
+void td_tbr(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        SEND_STRING(SS_TAP(X_RALT));
+        SEND_STRING("0060");
+        return;
+    }
+    if (state->count >= 1) {
+        SEND_STRING(SS_TAP(X_RALT));
+        SEND_STRING("0062");
+        return;
+    }
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_BRC] = ACTION_TAP_DANCE_FN(td_brc),
+    [TD_CBR] = ACTION_TAP_DANCE_FN(td_cbr),
+    [TD_TBR] = ACTION_TAP_DANCE_FN(td_tbr),
+    [TD_PRN] = ACTION_TAP_DANCE_DOUBLE(KC_LPRN, KC_RPRN),
+    [TD_ER]  = ACTION_TAP_DANCE_DOUBLE(KC_M, KC_RBRC),
+    [TD_SH]  = ACTION_TAP_DANCE_DOUBLE(KC_I, KC_O),
+    [TD_YO]  = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_GRV)
+};
+
 enum custom_keycodes {
     IZH_LAT = SAFE_RANGE,
-    IZH_RUS,
-    IZH_TEST,
-    IZH_TEST2,
-    IZH_TEST3,
+    IZH_RUS,  IZH_HASH, IZH_PIPE, IZH_QUES, IZH_CIRC, IZH_GRV,  IZH_AMPR, IZH_COLN,
+    IZH_QUOT, IZH_DQT,  IZH_DLR,  IZH_SCLN, IZH_TILD, IZH_SLSH, IZH_AT,   IZH_LCBR, 
+    IZH_RCBR, IZH_LT,   IZH_GT,   IZH_LBRC, IZH_RBRC, IZH_NUM,  IZH_LAQT, IZH_RAQT,
+    IZH_LCQT, IZH_RCQT, IZH_DEG,  IZH_BYAT, IZH_SYAT, IZH_BFIT, IZH_SFIT, IZH_BIZH,
+    IZH_SIZH, IZH_BI,   IZH_SI,   IZH_DASH, IZH_MINS, IZH_RUB  
 };
 
-enum unicode_symbols {
-    IZH_HASH, IZH_PIPE, IZH_QUES, IZH_CIRC, IZH_GRV,  IZH_AMPR, IZH_COLN, IZH_QUOT, 
-    IZH_DQT,  IZH_DLR,  IZH_SCLN, IZH_TILD, IZH_SLSH, IZH_AT,   IZH_LCBR, IZH_RCBR,
-    IZH_LT,   IZH_GT,   IZH_LBRC, IZH_RBRC, IZH_NUM,  IZH_LAQT, IZH_RAQT, IZH_LCQT,
-    IZH_RCQT, IZH_DEG,  IZH_BYAT, IZH_SYAT, IZH_BFIT, IZH_SFIT, IZH_BIZH, IZH_SIZH,
-    IZH_BI,   IZH_SI,   IZH_DASH, IZH_MINS, IZH_RUB
-};
-
-const uint32_t unicode_map[] PROGMEM = {
-    [IZH_HASH] = 0x0023, /*#*/    [IZH_PIPE] = 0x007C, /*|*/    [IZH_QUES] = 0x003F, /*?*/
-    [IZH_CIRC] = 0x005E, /*^*/    [IZH_GRV]  = 0x0060, /*`*/    [IZH_AMPR] = 0x0026, /*&*/
-    [IZH_COLN] = 0x003A, /*:*/    [IZH_QUOT] = 0x0027, /*'*/    [IZH_DQT]  = 0x0022, /*"*/
-    [IZH_DLR]  = 0x0024, /*$*/    [IZH_SCLN] = 0x003B, /*;*/    [IZH_TILD] = 0x007E, /*~*/
-    [IZH_SLSH] = 0x002F, /*/*/    [IZH_AT]   = 0x0040, /*@*/    [IZH_LCBR] = 0x007B, /*{*/
-    [IZH_RCBR] = 0x007D, /*}*/    [IZH_LT]   = 0x003C, /*<*/    [IZH_GT]   = 0x003E, /*>*/
-    [IZH_LBRC] = 0x005B, /*[*/    [IZH_RBRC] = 0x005D, /*]*/    [IZH_NUM]  = 0x2116, /*№*/
-    [IZH_LAQT] = 0x0171, /*«*/    [IZH_RAQT] = 0x0187, /*»*/    [IZH_LCQT] = 0x201E, /*„*/
-    [IZH_RCQT] = 0x201C, /*“*/    [IZH_DEG]  = 0x00B0, /*°*/    [IZH_BYAT] = 0x0462, /*Ѣ*/
-    [IZH_SYAT] = 0x0463, /*ѣ*/    [IZH_BFIT] = 0x0472, /*Ѳ*/    [IZH_SFIT] = 0x0473, /*ѳ*/
-    [IZH_BIZH] = 0x0474, /*Ѵ*/    [IZH_SIZH] = 0x0475, /*ѵ*/    [IZH_BI]   = 0x0178, /*І*/
-    [IZH_SI]   = 0x0179, /*і*/    [IZH_DASH] = 0x2014, /*—*/    [IZH_MINS] = 0x2212, /*−*/
-    [IZH_RUB]  = 0x20BD  /*₽*/
-};
-
-#define US_HASH RALT(UM(IZH_HASH))
-#define US_PIPE RALT(UM(IZH_PIPE))
-#define US_QUES RALT(UM(IZH_QUES))
-#define US_CIRC RALT(UM(IZH_CIRC))
-#define US_GRV  RALT(UM(IZH_GRV))
-#define US_AMPR RALT(UM(IZH_AMPR))
-#define US_COLN RALT(UM(IZH_COLN))
-#define US_QUOT RALT(UM(IZH_QUOT))
-#define US_DQT  RALT(UM(IZH_DQT))
-#define US_DLR  RALT(UM(IZH_DLR))
-#define US_SCLN RALT(UM(IZH_SCLN))
-#define US_TILD RALT(UM(IZH_TILD))
-#define US_SLSH RALT(UM(IZH_SLSH))
-#define US_AT   RALT(UM(IZH_AT))
-#define US_LCBR RALT(UM(IZH_LCBR))
-#define US_RCBR RALT(UM(IZH_RCBR))
-#define US_LT   RALT(UM(IZH_LT))
-#define US_GT   RALT(UM(IZH_GT))
-#define US_LBRC RALT(UM(IZH_LBRC))
-#define US_RBRC RALT(UM(IZH_RBRC))
-#define US_NUM  RALT(UM(IZH_NUM))
-#define US_LAQT RALT(UM(IZH_LAQT))
-#define US_RAQT RALT(UM(IZH_RAQT))
-#define US_LCQT RALT(UM(IZH_LCQT))
-#define US_RCQT RALT(UM(IZH_RCQT))
-#define US_DEG  RALT(UM(IZH_DEG))
-#define US_BYAT RALT(UM(IZH_BYAT))
-#define US_SYAT RALT(UM(IZH_SYAT))
-#define US_BFIT RALT(UM(IZH_BFIT))
-#define US_SFIT RALT(UM(IZH_SFIT))
-#define US_BIZH RALT(UM(IZH_BIZH))
-#define US_SIZH RALT(UM(IZH_SIZH))
-#define US_BI   RALT(UM(IZH_BI))
-#define US_SI   RALT(UM(IZH_SI))
-#define US_DASH RALT(UM(IZH_DASH))
-#define US_MINS RALT(UM(IZH_MINS))
-#define US_RUB  RALT(UM(IZH_RUB))
-
-#define US_TEST RSFT_T(IZH_TEST)
-#define US_TEST2 RSFT_T(IZH_TEST2)
-#define US_TEST3 IZH_TEST3
-
+#define US_HASH RSFT_T(IZH_HASH)
+#define US_PIPE RSFT_T(IZH_PIPE)
+#define US_QUES RSFT_T(IZH_QUES)
+#define US_CIRC RSFT_T(IZH_CIRC)
+#define US_GRV  RSFT_T(IZH_GRV)
+#define US_AMPR RSFT_T(IZH_AMPR)
+#define US_COLN RSFT_T(IZH_COLN)
+#define US_QUOT RSFT_T(IZH_QUOT)
+#define US_DQT  RSFT_T(IZH_DQT)
+#define US_DLR  RSFT_T(IZH_DLR)
+#define US_SCLN RSFT_T(IZH_SCLN)
+#define US_TILD RSFT_T(IZH_TILD)
+#define US_SLSH RSFT_T(IZH_SLSH)
+#define US_AT   RSFT_T(IZH_AT)
+#define US_LCBR RSFT_T(IZH_LCBR)
+#define US_RCBR RSFT_T(IZH_RCBR)
+#define US_LT   RSFT_T(IZH_LT)
+#define US_GT   RSFT_T(IZH_GT)
+#define US_LBRC RSFT_T(IZH_LBRC)
+#define US_RBRC RSFT_T(IZH_RBRC)
+#define US_NUM  RSFT_T(IZH_NUM)
+#define US_LAQT RSFT_T(IZH_LAQT)
+#define US_RAQT RSFT_T(IZH_RAQT)
+#define US_LCQT RSFT_T(IZH_LCQT)
+#define US_RCQT RSFT_T(IZH_RCQT)
+#define US_DEG  RSFT_T(IZH_DEG)
+#define US_BYAT RSFT_T(IZH_BYAT)
+#define US_SYAT RSFT_T(IZH_SYAT)
+#define US_BFIT RSFT_T(IZH_BFIT)
+#define US_SFIT RSFT_T(IZH_SFIT)
+#define US_BIZH RSFT_T(IZH_BIZH)
+#define US_SIZH RSFT_T(IZH_SIZH)
+#define US_BI   RSFT_T(IZH_BI)
+#define US_SI   RSFT_T(IZH_SI)
+#define US_DASH RSFT_T(IZH_DASH)
+#define US_MINS RSFT_T(IZH_MINS)
+#define US_RUB  RSFT_T(IZH_RUB)
 #define CT_LAT LCTL_T(IZH_LAT)
 #define CT_RUS RSFT_T(IZH_RUS)
 
@@ -86,47 +117,93 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_move(0);
                 SEND_STRING(SS_LCTL("0"));
                 selected_layout = 0;
-                return false;
             }
-            break;
+            return false;
         case CT_RUS:
             if (record->tap.count && record->event.pressed) {
                 layer_move(1);
                 SEND_STRING(SS_LCTL("1"));
                 selected_layout = 1;
-                return false;
             }
-            break;
-        case US_TEST:
-            if (record->tap.count && record->event.pressed) {
-                if (selected_layout == 1) {
-                    SEND_STRING(SS_LCTL("0"));
-                    SEND_STRING(SS_RALT("u20BD"));
-                    SEND_STRING(SS_TAP(X_ENTER));
-                    SEND_STRING(SS_LCTL("1"));
-                    return false;
-                }
-                SEND_STRING(SS_RALT("u20BD"));
-                SEND_STRING(SS_TAP(X_ENTER));
-                return false;
-            }
-            break;
-        case US_TEST2:
-            if (record->tap.count && record->event.pressed) {
-                SEND_STRING(SS_TAP(X_RALT));
-                SEND_STRING("8381");
-                return false;
-            }
-            break;
-        case US_TEST3:
-            if (record->tap.count && record->event.pressed) {
-                // SEND_STRING(SS_RALT("u20BD"), SS_TAP(X_ENTER));
-                return false;
-            }
-            break;
+            return false;
+        case US_HASH: /*#*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0023"); } return false;
+        case US_PIPE: /*|*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0124"); } return false;
+        case US_QUES: /*?*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0063"); } return false;
+        case US_CIRC: /*^*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0094"); } return false;
+        case US_GRV:  /*`*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0096"); } return false;
+        case US_AMPR: /*&*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0038"); } return false;
+        case US_COLN: /*:*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0058"); } return false;
+        case US_QUOT: /*'*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0039"); } return false;
+        case US_DQT:  /*"*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0034"); } return false;
+        case US_DLR:  /*$*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0036"); } return false;
+        case US_SCLN: /*;*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0059"); } return false;
+        case US_TILD: /*~*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0126"); } return false;
+        case US_SLSH: /*/*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0047"); } return false;
+        case US_AT:   /*@*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0064"); } return false;
+        case US_LCBR: /*{*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0123"); } return false;
+        case US_RCBR: /*}*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0125"); } return false;
+        case US_LT:   /*<*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0060"); } return false;
+        case US_GT:   /*>*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0062"); } return false;
+        case US_LBRC: /*[*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0091"); } return false;
+        case US_RBRC: /*]*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0093"); } return false;
+        case US_NUM:  /*№*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8470"); } return false;
+        case US_LAQT: /*«*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0369"); } return false;
+        case US_RAQT: /*»*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0391"); } return false;
+        case US_LCQT: /*„*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8222"); } return false;
+        case US_RCQT: /*“*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8220"); } return false;
+        case US_DEG:  /*°*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0176"); } return false;
+        case US_BYAT: /*Ѣ*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("1122"); } return false;
+        case US_SYAT: /*ѣ*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("1123"); } return false;
+        case US_BFIT: /*Ѳ*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("1138"); } return false;
+        case US_SFIT: /*ѳ*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("1139"); } return false;
+        case US_BIZH: /*Ѵ*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("1140"); } return false;
+        case US_SIZH: /*ѵ*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("1141"); } return false;
+        case US_BI:   /*І*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0376"); } return false;
+        case US_SI:   /*і*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0377"); } return false;
+        case US_DASH: /*—*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8212"); } return false;
+        case US_MINS: /*−*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8722"); } return false;
+        case US_RUB:  /*₽*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8381"); } return false;
     }
     return true;
 };
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -138,7 +215,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
      * │     │  Z  │  X  │  C  │  V  │  B  ││  N  │  M  │  ,  │  .  │     │     │
      * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Lat │Bkspc│     ││Enter│Space│ Rus │
+     *                   │ Lat │Bkspc│ Esc ││Enter│Space│ Rus │
      *                   │ Ctrl│ Fun │ Num ││ Sym │ Nav │Shift│
      *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
      */
@@ -146,29 +223,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NO,   KC_Q,  KC_W,  KC_E,  KC_R,  KC_T,     KC_Y,  KC_U,  KC_I,    KC_O,    KC_NO,  KC_NO,
         KC_ESC,  KC_A,  KC_S,  KC_D,  KC_F,  KC_G,     KC_H,  KC_J,  KC_K,    KC_L,    KC_P,   KC_NO,
         KC_NO,   KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,     KC_N,  KC_M,  KC_COMM, KC_DOT,  KC_NO,  KC_NO,
-                    CT_LAT, LT(4, KC_BSPC),  MO(3),    LT(2, KC_ENT), LT(5, KC_SPC),   CT_RUS
+           CT_LAT, LT(4, KC_BSPC),  LT(3, KC_ESC),     LT(2, KC_ENT), LT(5, KC_SPC),   CT_RUS
     ),
 
     /* Rus base layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │  Ё  │  Й  │  Ц  │  У  │  К  │  Е  ││  Н  │  Г  │  Ш  │  Б  │  З  │  Х  │
+     * │  Ё  │ Й Ё │  Ц  │  У  │  К  │  Е  ││  Н  │  Г  │ Ш Щ │  Б  │  З  │  Х  │
      * │  `  │  Q  │  W  │  E  │  R  │  T  ││  Y  │  U  │  I  │  ,  │  P  │  [  │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
      * │ Esc │  Ф  │  Ы  │  В  │  А  │  П  ││  Р  │  О  │  Л  │  Д  │  Ж  │  Э  │
      * │     │  A  │  S  │  D  │  F  │  G  ││  H  │  J  │  K  │  L  │  ;  │  '  │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │  Ъ  │  Я  │  Ч  │  С  │  М  │  И  ││  Т  │  Ь  │  ,  │  .  │  Ю  │  Щ  │
+     * │  Ъ  │  Я  │  Ч  │  С  │  М  │  И  ││  Т  │ Ь Ъ │  ,  │  .  │  Ю  │  Щ  │
      * │  ]  │  Z  │  X  │  C  │  V  │  B  ││  N  │  M  │  ?  │  /  │  .  │  O  │
      * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Lat │Bkspc│     ││Enter│Space│ Rus │
+     *                   │ Lat │Bkspc│ Esc ││Enter│Space│ Rus │
      *                   │ Ctrl│ Fun │ Num ││ Sym │ Nav │Shift│
      *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
      */
     [1] = LAYOUT_ortho_4x16(
-        KC_GRV,   KC_Q,  KC_W,  KC_E,  KC_R,  KC_T,     KC_Y,  KC_U,  KC_I,    KC_COMM,  KC_P,     KC_LBRC,
-        KC_ESC,   KC_A,  KC_S,  KC_D,  KC_F,  KC_G,     KC_H,  KC_J,  KC_K,    KC_L,     KC_SCLN,  KC_QUOT,
-        KC_RBRC,  KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,     KC_N,  KC_M,  KC_QUES, KC_SLSH,  KC_DOT,   KC_O,
-                     CT_LAT, LT(4, KC_BSPC),  MO(3),    LT(2, KC_ENT), LT(5, KC_SPC),    CT_RUS
+        KC_GRV,   TD(TD_YO),  KC_W,  KC_E,  KC_R,  KC_T,     KC_Y,  KC_U,       TD(TD_SH),  KC_COMM,  KC_P,     KC_LBRC,
+        KC_ESC,   KC_A,  KC_S,  KC_D,  KC_F,  KC_G,          KC_H,  KC_J,       KC_K,       KC_L,     KC_SCLN,  KC_QUOT,
+        KC_RBRC,  KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,          KC_N,  TD(TD_ER),  KC_QUES,    KC_SLSH,  KC_DOT,   KC_O,
+            CT_LAT, LT(4, KC_BSPC),  LT(3, KC_ESC),          LT(2, KC_ENT), LT(5, KC_SPC),   CT_RUS
     ),
 
     /* Symbols layer 
@@ -183,35 +260,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
      */
     [2] = LAYOUT_ortho_4x16(
-        US_TEST3,   KC_EXLM,  US_HASH,  US_QUES,  KC_PERC,  KC_UNDS,      KC_PIPE,  US_CIRC,  KC_ASTR,  US_GRV,  US_AMPR,  US_TEST,    
-        KC_ESC,  US_COLN,  KC_PLUS,  US_QUOT,  US_DQT,   KC_LBRC,      KC_LPRN,  KC_EQL,   KC_MINS,  US_DLR,  US_SCLN,  KC_NO,
-        US_TEST2,   KC_NO,    US_NUM,   US_TILD,  KC_BSLS,  KC_AT,        KC_SLSH,  US_LCBR,  US_LT,    KC_NO,   KC_NO,    KC_NO,
-                                     KC_LCTL,  KC_BSPC,  KC_ENT,       KC_NO,    KC_NO,    KC_NO
+        KC_NO,   KC_EXLM,  US_HASH,  US_QUES,  KC_PERC,  KC_UNDS,      KC_PIPE,    US_CIRC,    KC_ASTR,    US_GRV,  US_AMPR,  KC_NO,    
+        KC_ESC,  US_COLN,  KC_PLUS,  US_QUOT,  US_DQT,   TD(TD_BRC),   TD(TD_PRN), KC_EQL,     KC_MINS,    US_DLR,  US_SCLN,  KC_NO,
+        KC_NO,   KC_NO,    US_NUM,   US_TILD,  KC_BSLS,  KC_AT,        KC_SLSH,    TD(TD_CBR), TD(TD_TBR), KC_NO,   KC_NO,    KC_NO,
+                                     KC_LCTL,  KC_BSPC,  KC_ENT,       KC_NO,      KC_NO,      KC_NO
     ),
 
     /* Nums layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │     │     │  7  │  8  │  9  │     ││     │  7  │  8  │  9  │     │     │
+     * │     │  8  │  7  │  6  │  5  │  9  ││  9  │  5  │  6  │  7  │     │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │  0  │  4  │  5  │  6  │     ││  0  │  4  │  5  │  6  │     │     │
+     * │ Esc │  4  │  3  │  2  │  1  │  0  ││  0  │  1  │  2  │  3  │  4  │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │     │     │  1  │  2  │  3  │     ││     │  1  │  2  │  3  │     │     │
+     * │     │     │     │     │     │     ││     │     │     │     │     │     │
      * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
      *                   │     │     │_Num_││Enter│Space│Shift│
      *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
      */
     [3] = LAYOUT_ortho_4x16(
-        KC_NO,   KC_NO,  KC_7,  KC_8,   KC_9,   KC_NO,      KC_NO,   KC_7,  KC_8,   KC_9,  KC_NO,  KC_NO,
-        KC_ESC,  KC_0,   KC_4,  KC_5,   KC_6,   KC_NO,      KC_0,    KC_4,  KC_5,   KC_6,  KC_NO,  KC_NO,
-        KC_NO,   KC_NO,  KC_1,  KC_2,   KC_3,   KC_NO,      KC_NO,   KC_1,  KC_2,   KC_3,  KC_NO,  KC_NO,
-                                KC_NO,  KC_NO,  KC_NO,      KC_ENT,  KC_SPC,  KC_RSFT
+        KC_NO,   KC_8,   KC_7,   KC_6,   KC_5,   KC_9,       KC_9,    KC_5,   KC_6,   KC_7,   KC_8,   KC_NO,
+        KC_ESC,  KC_4,   KC_3,   KC_2,   KC_1,   KC_0,       KC_0,    KC_1,   KC_2,   KC_3,   KC_4,   KC_NO,
+        KC_NO,   KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,      KC_NO,   KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,
+                                 KC_NO,  KC_NO,  KC_NO,      KC_ENT,  KC_SPC, KC_RSFT
     ),
 
     /* Fn layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
      * │     │ Redo│ Cut │Paste│ Copy│ Undo││     │CpsLk│PrScr│     │     │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │ Win │ Alt │ Ctrl│Shift│     ││     │Shift│ Ctrl│ Alt │ Win │     │
+     * │ Esc │ Win │ Alt │ Ctrl│Shift│Ctl-/││     │Shift│ Ctrl│ Alt │ Win │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
      * │     │ F11 │ F10 │ F9  │ F8  │ F5  ││     │     │     │     │     │     │
      * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
@@ -220,7 +297,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
     [4] = LAYOUT_ortho_4x16(
         KC_NO,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),      KC_NO,   KC_CAPS,  KC_PSCR,  KC_NO,    KC_NO,    KC_NO,
-        KC_ESC,  KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  KC_NO,        KC_NO,   KC_RSFT,  KC_RCTL,  KC_LALT,  KC_RGUI,  KC_NO,
+        KC_ESC,  KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  C(KC_SLSH),   KC_NO,   KC_RSFT,  KC_RCTL,  KC_LALT,  KC_RGUI,  KC_NO,
         KC_NO,   KC_F11,   KC_F10,   KC_F9,    KC_F8,    KC_F5,        KC_NO,   KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
                                      KC_NO,    KC_NO,    KC_NO,        KC_ENT,  KC_SPC,   KC_RSFT
     ),

@@ -66,7 +66,8 @@ enum custom_keycodes {
     IZH_QUOT, IZH_DQT,  IZH_DLR,  IZH_SCLN, IZH_TILD, IZH_SLSH, IZH_AT,   IZH_LCBR, 
     IZH_RCBR, IZH_LT,   IZH_GT,   IZH_LBRC, IZH_RBRC, IZH_NUM,  IZH_LAQT, IZH_RAQT,
     IZH_LCQT, IZH_RCQT, IZH_DEG,  IZH_BYAT, IZH_SYAT, IZH_BFIT, IZH_SFIT, IZH_BIZH,
-    IZH_SIZH, IZH_BI,   IZH_SI,   IZH_DASH, IZH_MINS, IZH_RUB  
+    IZH_SIZH, IZH_BI,   IZH_SI,   IZH_DASH, IZH_MINS, IZH_RUB,  IZH_COM,  IZH_PER,
+    IZH_UP8,  IZH_DWN8, US_X1,    US_X2
 };
 
 #define CT_LAT LCTL_T(IZH_LAT)
@@ -108,6 +109,8 @@ enum custom_keycodes {
 #define US_DASH RSFT_T(IZH_DASH)
 #define US_MINS RSFT_T(IZH_MINS)
 #define US_RUB  RSFT_T(IZH_RUB)
+#define US_COM  RSFT_T(IZH_COM)
+#define US_PER  RSFT_T(IZH_PER)
 
 uint8_t selected_layout = 0;
 
@@ -129,6 +132,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+        case IZH_UP8:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_UP));
+                SEND_STRING(SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_UP));
+            }
+            return false;
+        case IZH_DWN8:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_DOWN) SS_TAP(X_DOWN) SS_TAP(X_DOWN) SS_TAP(X_DOWN));
+                SEND_STRING(SS_TAP(X_DOWN) SS_TAP(X_DOWN) SS_TAP(X_DOWN) SS_TAP(X_DOWN));
+            }
+            return false;
+
+        case US_X1: /*X#*/
+            if (record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0023"); } return false;
+        case US_X2: /*X;*/
+            if (record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0059"); } return false;
+
         case US_HASH: /*#*/
             if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0023"); } return false;
         case US_PIPE: /*|*/
@@ -203,6 +224,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8722"); } return false;
         case US_RUB:  /*₽*/
             if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("8381"); } return false;
+        case US_COM:  /*,*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0044"); } return false;
+        case US_PER:  /*.*/
+            if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0046"); } return false;
     }
     return true;
 };
@@ -210,115 +235,115 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     /* Base layer
-     * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │     │  Q  │  W  │  E  │  R  │  T  ││  Y  │  U  │  I  │  O  │     │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │  A  │  S  │  D  │  F  │  G  ││  H  │  J  │  K  │  L  │  P  │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │     │  Z  │  X  │  C  │  V  │  B  ││  N  │  M  │  ,  │  .  │     │     │
-     * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Lat │Bkspc│ Esc ││Enter│Space│ Rus │
-     *                   │ Ctrl│ Fun │ Num ││ Sym │ Nav │Shift│
-     *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
+     * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │     │  Q  │  W  │  E  │  R  │  T  │  │  Y  │  U  │  I  │  O  │     │     │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │  A  │  S  │  D  │  F  │  G  │  │  H  │  J  │  K  │  L  │  P  │  /  │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │  Z  │  X  │  C  │  V  │  B  │  │  N  │  M  │  ,  │  .  │     │  /  │
+     * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
+     *                   │ Lat │Bkspc│ Esc │  │Enter│Space│ Rus │
+     *                   │ Ctrl│ Fun │ Num │  │ Sym │ Nav │Shift│
+     *                   └─────┴─────┴─────┘  └─────┴─────┴─────┘
      */
     [0] = LAYOUT_ortho_4x16(
         KC_NO,   KC_Q,  KC_W,  KC_E,  KC_R,  KC_T,     KC_Y,  KC_U,  KC_I,    KC_O,    KC_NO,  KC_NO,
-        KC_ESC,  KC_A,  KC_S,  KC_D,  KC_F,  KC_G,     KC_H,  KC_J,  KC_K,    KC_L,    KC_P,   KC_NO,
+        KC_NO,   KC_A,  KC_S,  KC_D,  KC_F,  KC_G,     KC_H,  KC_J,  KC_K,    KC_L,    KC_P,   KC_NO,
         KC_NO,   KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,     KC_N,  KC_M,  KC_COMM, KC_DOT,  KC_NO,  KC_NO,
            CT_LAT, LT(4, KC_BSPC),  LT(3, KC_ESC),     LT(2, KC_ENT), LT(5, KC_SPC),   CT_RUS
     ),
 
     /* Rus base layer
-     * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │  Ё  │ Й Ё │  Ц  │  У  │  К  │  Е  ││  Н  │  Г  │ Ш Щ │  Б  │  З  │  Х  │
-     * │  `  │  Q  │  W  │  E  │  R  │  T  ││  Y  │  U  │  I  │  ,  │  P  │  [  │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │  Ф  │  Ы  │  В  │  А  │  П  ││  Р  │  О  │  Л  │  Д  │  Ж  │  Э  │
-     * │     │  A  │  S  │  D  │  F  │  G  ││  H  │  J  │  K  │  L  │  ;  │  '  │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │  Ъ  │  Я  │  Ч  │  С  │  М  │  И  ││  Т  │ Ь Ъ │  ,  │  .  │  Ю  │  Щ  │
-     * │  ]  │  Z  │  X  │  C  │  V  │  B  ││  N  │  M  │  ?  │  /  │  .  │  O  │
-     * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Lat │Bkspc│ Esc ││Enter│Space│ Rus │
-     *                   │ Ctrl│ Fun │ Num ││ Sym │ Nav │Shift│
-     *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
+     * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │  Э  │ Й Ё │  Ц  │  У  │  К  │  Е  │  │  Н  │  Г  │ Ш Щ │  Б  │  З  │  Х  │
+     * │  '  │  Q  │  W  │  E  │  R  │  T  │  │  Y  │  U  │  I  │  ,  │  P  │  [  │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │  Ф  │  Ы  │  В  │  А  │  П  │  │  Р  │  О  │  Л  │  Д  │  Ж  │  /  │
+     * │     │  A  │  S  │  D  │  F  │  G  │  │  H  │  J  │  K  │  L  │  ;  │     │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │  Я  │  Ч  │  С  │  М  │  И  │  │  Т  │ Ь Ъ │  ,  │  .  │  Ю  │  /  │
+     * │     │  Z  │  X  │  C  │  V  │  B  │  │  N  │  M  │  ?  │  /  │  .  │     │
+     * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
+     *                   │ Lat │Bkspc│ Esc │  │Enter│Space│ Rus │
+     *                   │ Ctrl│ Fun │ Num │  │ Sym │ Nav │Shift│
+     *                   └─────┴─────┴─────┘  └─────┴─────┴─────┘
      */
     [1] = LAYOUT_ortho_4x16(
-        KC_GRV,   TD(TD_YO),  KC_W,  KC_E,  KC_R,  KC_T,      KC_Y,  KC_U,       TD(TD_SH),  KC_COMM,  KC_P,     KC_LBRC,
-        KC_ESC,   KC_A,       KC_S,  KC_D,  KC_F,  KC_G,      KC_H,  KC_J,       KC_K,       KC_L,     KC_SCLN,  KC_QUOT,
-        KC_RBRC,  KC_Z,       KC_X,  KC_C,  KC_V,  KC_B,      KC_N,  TD(TD_ER),  KC_QUES,    KC_SLSH,  KC_DOT,   KC_O,
+        KC_QUOT,  TD(TD_YO),  KC_W,  KC_E,  KC_R,  KC_T,      KC_Y,  KC_U,       TD(TD_SH),  KC_COMM,  KC_P,     KC_LBRC,
+        KC_NO,    KC_A,       KC_S,  KC_D,  KC_F,  KC_G,      KC_H,  KC_J,       KC_K,       KC_L,     KC_SCLN,  KC_NO,
+        KC_NO,    KC_Z,       KC_X,  KC_C,  KC_V,  KC_B,      KC_N,  TD(TD_ER),  KC_QUES,    KC_SLSH,  KC_DOT,   KC_NO,
                  CT_LAT, LT(4, KC_BSPC),  LT(3, KC_ESC),      LT(2, KC_ENT), LT(5, KC_SPC),  CT_RUS
     ),
 
     /* Symbols layer 
-     * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │     │  !  │  #  │  ?  │  %  │  _  ││  |  │  ^  │  *  │  `  │  &  │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │  :  │  +  │  '  │  "  │ [ ] ││ ( ) │  =  │  -  │  $  │  ;  │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │     │     │  №  │  ~  │  \  │  @  ││  /  │ { } │ < > │     │     │     │
-     * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Ctrl│Bkspc│ Esc ││_Sym_│Space│Shift│
-     *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
+     * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │     │  !  │  #  │  ?  │  %  │  _  │  │  |  │  ^  │  *  │  `  │  &  │     │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │  :  │  +  │  '  │  "  │ [ ] │  │ ( ) │  =  │  -  │  $  │  ;  │  /  │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │     │  №  │  ~  │  \  │  @  │  │  /  │ { } │ < > │     │     │  /  │
+     * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
+     *                   │ Ctrl│Bkspc│ Esc │  │_Sym_│Space│Shift│
+     *                   └─────┴─────┴─────┘  └─────┴─────┴─────┘
      */
     [2] = LAYOUT_ortho_4x16(
-        KC_NO,   KC_EXLM,  US_HASH,  US_QUES,  KC_PERC,  KC_UNDS,      US_PIPE,    US_CIRC,    KC_ASTR,    US_GRV,  US_AMPR,  KC_NO,    
-        KC_ESC,  US_COLN,  KC_PLUS,  US_QUOT,  US_DQT,   TD(TD_BRC),   TD(TD_PRN), KC_EQL,     KC_MINS,    US_DLR,  US_SCLN,  KC_NO,
+        US_X1,   KC_EXLM,  US_HASH,  US_QUES,  KC_PERC,  KC_UNDS,      US_PIPE,    US_CIRC,    KC_ASTR,    US_GRV,  US_AMPR,  KC_NO,    
+        US_X2,   US_COLN,  KC_PLUS,  US_QUOT,  US_DQT,   TD(TD_BRC),   TD(TD_PRN), KC_EQL,     KC_MINS,    US_DLR,  US_SCLN,  KC_NO,
         KC_NO,   KC_NO,    US_NUM,   US_TILD,  KC_BSLS,  US_AT,        US_SLSH,    TD(TD_CBR), TD(TD_TBR), KC_NO,   KC_NO,    KC_NO,
                                        KC_NO,  KC_BSPC,  KC_ESC,       KC_NO,      KC_SPC,     KC_NO
     ),
 
     /* Nums layer
-     * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │     │  8  │  7  │  6  │  5  │  9  ││  9  │  5  │  6  │  7  │  8  │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │  4  │  3  │  2  │  1  │  0  ││  0  │  1  │  2  │  3  │  4  │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │     │     │     │     │     │     ││     │     │     │     │     │     │
-     * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Ctrl│Bkspc│_Num_││Enter│Space│Shift│
-     *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
+     * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │     │  8  │  7  │  6  │  5  │  9  │  │  9  │  5  │  6  │  7  │  8  │     │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │  4  │  3  │  2  │  1  │  0  │  │  0  │  1  │  2  │  3  │  4  │  /  │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │     │  .  │  ,  │     │     │  │     │     │  ,  │  .  │     │  /  │
+     * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
+     *                   │ Ctrl│Bkspc│_Num_│  │Enter│Space│Shift│
+     *                   └─────┴─────┴─────┘  └─────┴─────┴─────┘
      */
     [3] = LAYOUT_ortho_4x16(
-        KC_NO,   KC_8,   KC_7,   KC_6,   KC_5,   KC_9,       KC_9,    KC_5,   KC_6,   KC_7,   KC_8,   KC_NO,
-        KC_ESC,  KC_4,   KC_3,   KC_2,   KC_1,   KC_0,       KC_0,    KC_1,   KC_2,   KC_3,   KC_4,   KC_NO,
-        KC_NO,   KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,      KC_NO,   KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,
-                               KC_NO,  KC_BSPC,  KC_NO,      KC_ENT,  KC_SPC, KC_NO
+        KC_NO,   KC_8,   KC_7,    KC_6,    KC_5,   KC_9,       KC_9,    KC_5,   KC_6,    KC_7,    KC_8,   KC_NO,
+        KC_NO,   KC_4,   KC_3,    KC_2,    KC_1,   KC_0,       KC_0,    KC_1,   KC_2,    KC_3,    KC_4,   KC_NO,
+        KC_NO,   KC_NO,  US_PER,  US_COM,  KC_NO,  KC_NO,      KC_NO,   KC_NO,  US_COM,  US_PER,  KC_NO,  KC_NO,
+                                 KC_NO,  KC_BSPC,  KC_NO,      KC_ENT,  KC_SPC, KC_NO
     ),
 
     /* Fn layer
-     * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │     │ Redo│ Cut │Paste│ Copy│ Undo││     │CpsLk│PrScr│     │     │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │ Win │ Alt │ Ctrl│Shift│Ctl-/││     │Shift│ Ctrl│ Alt │ Win │     │
-     * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │     │ F11 │ F10 │ F9  │ F8  │ F5  ││     │     │     │     │     │     │
-     * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
-     *                   │ Ctrl│_Fun_│ Esc ││Enter│Space│Shift│
-     *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
+     * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │ F5  │ Redo│ Cut │Paste│ Copy│ Undo│  │     │CpsLk│PrScr│     │     │     │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │ Win │ Alt │ Ctrl│Shift│Ctl-/│  │     │Shift│ Ctrl│ Alt │ Win │  /  │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
+     * │  /  │ Win1│ Win2│ Win3│ Win4│ Win5│  │ F5  │ F8  │ F9  │ F10 │ F11 │  /  │
+     * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
+     *                   │ Ctrl│_Fun_│ Esc │  │Enter│Space│Shift│
+     *                   └─────┴─────┴─────┘  └─────┴─────┴─────┘
      */
     [4] = LAYOUT_ortho_4x16(
-        KC_NO,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),      KC_NO,   KC_CAPS,  KC_PSCR,  KC_NO,    KC_NO,    KC_NO,
-        KC_ESC,  KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  C(KC_SLSH),   KC_NO,   KC_RSFT,  KC_RCTL,  KC_LALT,  KC_RGUI,  KC_NO,
-        KC_NO,   KC_F11,   KC_F10,   KC_F9,    KC_F8,    KC_F5,        KC_NO,   KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+        KC_F5,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),      KC_NO,   KC_CAPS,  KC_PSCR,  KC_NO,    KC_NO,    KC_NO,
+        KC_NO,   KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  C(KC_SLSH),   KC_NO,   KC_RSFT,  KC_RCTL,  KC_LALT,  KC_RGUI,  KC_NO,
+        KC_NO,   G(KC_1),  G(KC_2),  G(KC_3),  G(KC_4),  G(KC_5),      KC_F5,   KC_F8,    KC_F9,    KC_F10,   KC_F11,    KC_NO,
                                        KC_NO,  KC_NO,    KC_ESC,       KC_ENT,  KC_SPC,   KC_NO
     ),
 
     /* Nav layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
-     * │     │ Redo│ Cut │Paste│ Copy│ Undo││MsUp │ Home│ Up  │ End │     │     │
+     * │     │ Redo│ Cut │Paste│ Copy│ Undo││Up8  │ Home│ Up  │ End │     │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Esc │ Win │ Alt │ Ctrl│Shift│Ctl-/││MsDwn│ Left│ Down│Right│ Tab │     │
+     * │  /  │ Win │ Alt │ Ctrl│Shift│Ctl-/││Down8│ Left│ Down│Right│ Tab │  /  │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ Win5│ Win4│ Win3│ Win2│ Win1│MsLCk││ Del │Ctl-L│Ctl-R│     │     │     │
+     * │  /  │ Win1│ Win2│ Win3│ Win4│ Win5││ Del │Ctl-L│Ctl-R│     │     │  /  │
      * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
      *                   │ Ctrl│Bkspc│Enter││Enter│_Nav_│Shift│
      *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
      */
     [5] = LAYOUT_ortho_4x16(
-        KC_NO,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),         KC_WH_U,  KC_HOME,     KC_UP,       KC_END,   KC_NO,   KC_NO,
-        KC_ESC,  KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  C(KC_SLSH),      KC_WH_D,  KC_LEFT,     KC_DOWN,     KC_RGHT,  KC_TAB,  KC_NO,
-        G(KC_5), G(KC_4),  G(KC_3),  G(KC_2),  G(KC_1),  KC_BTN1,         KC_DEL,   C(KC_LEFT),  C(KC_RGHT),  KC_NO,    KC_NO,   KC_NO,
-                                     KC_NO,    KC_BSPC,  KC_ENT,          KC_ENT,   KC_NO,       KC_NO
+        DT_PRNT,  C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),         IZH_UP8,   KC_HOME,     KC_UP,       KC_END,   KC_NO,   KC_NO,
+        DT_UP,    KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  C(KC_SLSH),      IZH_DWN8,  KC_LEFT,     KC_DOWN,     KC_RGHT,  KC_TAB,  KC_NO,
+        DT_DOWN,  G(KC_1),  G(KC_2),  G(KC_3),  G(KC_4),  G(KC_5),         KC_DEL,    C(KC_LEFT),  C(KC_RGHT),  KC_NO,    KC_NO,   KC_NO,
+                                      KC_NO,    KC_BSPC,  KC_ENT,          KC_ENT,    KC_NO,       KC_NO
     )
 };

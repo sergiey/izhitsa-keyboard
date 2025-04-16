@@ -1,5 +1,7 @@
 #include QMK_KEYBOARD_H
 
+uint8_t selected_layout = 0;
+
 enum {
     TD_BRC = 0,
     TD_CBR,
@@ -49,7 +51,23 @@ void td_tbr(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-uint8_t selected_layout = 0;
+void send_alt_shift_backspace(void) {
+    register_code(KC_LSFT);
+    register_code(KC_LALT);
+    register_code(KC_BSPC);
+    unregister_code(KC_BSPC);
+    unregister_code(KC_LALT);
+    unregister_code(KC_LSFT);
+}
+
+void send_ctrl_shift_b(void) {
+    register_code(KC_LSFT);
+    register_code(KC_LCTL);
+    register_code(KC_B);
+    unregister_code(KC_B);
+    unregister_code(KC_LCTL);
+    unregister_code(KC_LSFT);
+}
 
 void send_shift_alt_1(void) {
     register_code(KC_LSFT);
@@ -95,7 +113,7 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_PRN] = ACTION_TAP_DANCE_DOUBLE(KC_LPRN, KC_RPRN),
     [TD_ER]  = ACTION_TAP_DANCE_DOUBLE(KC_M, KC_RBRC),
     [TD_SH]  = ACTION_TAP_DANCE_DOUBLE(KC_I, KC_O),
-    [TD_YO]  = ACTION_TAP_DANCE_DOUBLE(KC_S, KC_GRV)
+    // [TD_YO]  = ACTION_TAP_DANCE_DOUBLE(KC_S, KC_GRV)
 };
 
 enum custom_keycodes {
@@ -105,9 +123,12 @@ enum custom_keycodes {
     IZH_RCBR, IZH_LT,   IZH_GT,   IZH_LBRC, IZH_RBRC, IZH_NUM,  IZH_LAQT, IZH_RAQT,
     IZH_LCQT, IZH_RCQT, IZH_DEG,  IZH_BYAT, IZH_SYAT, IZH_BFIT, IZH_SFIT, IZH_BIZH,
     IZH_SIZH, IZH_BI,   IZH_SI,   IZH_DASH, IZH_MINS, IZH_RUB,  IZH_COM,  IZH_PER,
-    IZH_UP8,  IZH_DWN8, US_X1,    US_X2,    IZH_CMNT
+    IZH_UP8,  IZH_DWN8, US_X1,    US_X2,    IZH_CMNT, IZH_BILD, IZH_BACK, IZH_VER
 };
 
+#define CT_VER  IZH_VER
+#define CT_BACK IZH_BACK
+#define CT_BILD IZH_BILD
 #define CT_CMNT IZH_CMNT
 #define CT_LAT  IZH_LAT
 #define CT_RUS  IZH_RUS
@@ -155,6 +176,18 @@ enum custom_keycodes {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case CT_BACK:
+            if (record->event.pressed) {
+                send_alt_shift_backspace();
+                return false;
+            }
+            break;
+        case CT_BILD:
+            if (record->event.pressed) {
+                send_ctrl_shift_b();
+                return false;
+            }
+            break;
         case IZH_CMNT:
             return press_ctrl_yu(record);
         case CT_LAT:
@@ -190,6 +223,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0023"); } return false;
         case US_X2: /*X;*/
             if (record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0059"); } return false;
+
+        case IZH_VER: /* Firmware version */
+            if (record->event.pressed) { SEND_STRING("1.3"); } return false;
 
         case US_HASH: /*#*/
             if (record->tap.count && record->event.pressed) { SEND_STRING(SS_TAP(X_RALT)); SEND_STRING("0023"); } return false;
@@ -296,13 +332,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     /* Rus base layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │  Э  │ Й Ё │  Ц  │  У  │  К  │  Е  │  │  Н  │  Г  │ Ш Щ │  Б  │  З  │  Х  │
+     * │  Э  │  Й  │  Ц  │  У  │  К  │  Е  │  │  Н  │  Г  │ Ш Щ │  Б  │  З  │  Х  │
      * │  '  │  Q  │  W  │  E  │  R  │  T  │  │  Y  │  U  │  I  │  ,  │  P  │  [  │
      * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
      * │ Lat │  Ф  │  Ы  │  В  │  А  │  П  │  │  Р  │  О  │  Л  │  Д  │  Ж  │ Rus │
      * │     │  A  │  S  │  D  │  F  │  G  │  │  H  │  J  │  K  │  L  │  ;  │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
-     * │  /  │  Я  │  Ч  │  С  │  М  │  И  │  │  Т  │ Ь Ъ │  ,  │  .  │  Ю  │  /  │
+     * │  Ё  │  Я  │  Ч  │  С  │  М  │  И  │  │  Т  │ Ь Ъ │  ,  │  .  │  Ю  │  /  │
      * │     │  Z  │  X  │  C  │  V  │  B  │  │  N  │  M  │  ?  │  /  │  .  │     │
      * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
      *                   │Enter│Bkspc│ Esc │  │Enter│Space│Shift│
@@ -311,8 +347,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
     [1] = LAYOUT_ortho_4x16(
         KC_QUOT,  KC_Q,  KC_W,      KC_E,  KC_R,  KC_T,       KC_Y,  KC_U,      TD(TD_SH), KC_COMM, KC_P,    KC_LBRC,
-        CT_LAT,   KC_A,  TD(TD_YO), KC_D,  KC_F,  KC_G,       KC_H,  KC_J,      KC_K,      KC_L,    KC_SCLN, CT_RUS,
-        KC_NO,    KC_Z,  KC_X,      KC_C,  KC_V,  KC_B,       KC_N,  TD(TD_ER), KC_QUES,   KC_SLSH, KC_DOT,  KC_NO,
+        CT_LAT,   KC_A,  KC_S,      KC_D,  KC_F,  KC_G,       KC_H,  KC_J,      KC_K,      KC_L,    KC_SCLN, CT_RUS,
+        KC_GRV,   KC_Z,  KC_X,      KC_C,  KC_V,  KC_B,       KC_N,  TD(TD_ER), KC_QUES,   KC_SLSH, KC_DOT,  KC_NO,
         LCTL_T(KC_ENT),  LT(4, KC_BSPC),   LT(3, KC_ESC),     LT(2, KC_ENT),    LT(5, KC_SPC),      KC_RSFT
     ),
 
@@ -354,18 +390,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     /* Fn layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┐  ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ F5  │ Redo│ Cut │Paste│ Copy│ Undo│  │     │CpsLk│PrScr│     │     │     │
+     * │ F5  │ Redo│ Cut │Paste│ Copy│ Undo│  │     │CpsLk│PrScr│     │     │ Ver │
      * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
-     * │  /  │ Win │ Alt │ Ctrl│Shift│Ctl-/│  │     │Shift│ Ctrl│ Alt │ Win │  /  │
+     * │Build│ Win │ Alt │ Ctrl│Shift│ CMNT│  │     │Shift│ Ctrl│ Alt │ Win │  /  │
      * ├─────┼─────┼─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┼─────┼─────┤
      * │  /  │ Win1│ Win2│ Win3│ Win4│S-F12│  │ F5  │ F8  │ F9  │ F10 │ F11 │  /  │
      * └─────┴─────┴─────┼─────┼─────┼─────┤  ├─────┼─────┼─────┼─────┴─────┴─────┘
      *                   │ Ctrl│_Fun_│ Esc │  │Enter│Space│Shift│
      *                   └─────┴─────┴─────┘  └─────┴─────┴─────┘
      */
-    [4] = LAYOUT_ortho_4x16( //C(KC_SLSH)
-        KC_F5,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),      KC_NO,   KC_CAPS,  KC_PSCR,  KC_NO,    KC_NO,    KC_NO,
-        KC_NO,   KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  CT_CMNT,      KC_NO,   KC_RSFT,  KC_RCTL,  KC_LALT,  KC_RGUI,  KC_NO,
+    [4] = LAYOUT_ortho_4x16(
+        KC_F5,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),      KC_NO,   KC_CAPS,  KC_PSCR,  KC_NO,    KC_NO,    IZH_VER,
+        CT_BILD, KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  CT_CMNT,      KC_NO,   KC_RSFT,  KC_RCTL,  KC_LALT,  KC_RGUI,  KC_NO,
         KC_NO,   G(KC_1),  G(KC_2),  G(KC_3),  G(KC_4),  S(KC_F12),    KC_F5,   KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_NO,
                                        KC_NO,  KC_NO,    KC_ESC,       KC_ENT,  KC_SPC,   KC_NO
     ),
@@ -374,17 +410,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * ┌─────┬─────┬─────┬─────┬─────┬─────┬┬─────┬─────┬─────┬─────┬─────┬─────┐
      * │     │ Redo│ Cut │Paste│ Copy│ Undo││Up8  │ Home│ Up  │ End │     │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │  /  │ Win │ Alt │ Ctrl│Shift│CTREM││Down8│ Left│ Down│Right│ Tab │  /  │
+     * │Build│ Win │ Alt │ Ctrl│Shift│ CMNT││Down8│ Left│ Down│Right│ Tab │  /  │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┼─────┼─────┤
-     * │  /  │ Win1│ Win2│ Win3│ Win4│ Win5││ Del │Ctl-L│Ctl-R│     │     │  /  │
+     * │  /  │ Win1│ Win2│ Win3│ Win4│ Win5││ Del │Ctl-L│Ctl-R│ Back│     │  /  │
      * └─────┴─────┴─────┼─────┼─────┼─────┼┼─────┼─────┼─────┼─────┴─────┴─────┘
      *                   │ Ctrl│Bkspc│Enter││Enter│_Nav_│Shift│
      *                   └─────┴─────┴─────┴┴─────┴─────┴─────┘
      */
     [5] = LAYOUT_ortho_4x16(
-        DT_PRNT,  C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),         IZH_UP8,   KC_HOME,     KC_UP,       KC_END,   KC_NO,   KC_NO,
-        DT_UP,    KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  CT_CMNT,         IZH_DWN8,  KC_LEFT,     KC_DOWN,     KC_RGHT,  KC_TAB,  KC_NO,
-        DT_DOWN,  G(KC_1),  G(KC_2),  G(KC_3),  G(KC_4),  G(KC_5),         KC_DEL,    C(KC_LEFT),  C(KC_RGHT),  KC_NO,    KC_NO,   KC_NO,
-                                      KC_NO,    KC_BSPC,  KC_ENT,          KC_ENT,    KC_NO,       KC_NO
+        KC_NO,   C(KC_Y),  C(KC_X),  C(KC_V),  C(KC_C),  C(KC_Z),         IZH_UP8,   KC_HOME,     KC_UP,       KC_END,   KC_NO,   KC_NO,
+        CT_BILD, KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,  CT_CMNT,         IZH_DWN8,  KC_LEFT,     KC_DOWN,     KC_RGHT,  KC_TAB,  KC_NO,
+        KC_NO,   G(KC_1),  G(KC_2),  G(KC_3),  G(KC_4),  G(KC_5),         KC_DEL,    C(KC_LEFT),  C(KC_RGHT),  CT_BACK,  KC_NO,   KC_NO,
+                                      KC_NO,    KC_BSPC,  KC_ENT,         KC_ENT,    KC_NO,       KC_NO
     )
 };
